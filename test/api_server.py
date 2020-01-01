@@ -1,11 +1,12 @@
 import json
-
-import multiprocessing
 from flask import Flask
 from flask import request, make_response
 
 app = Flask(__name__)
-users_dict = {
+
+""" storage all users' data
+data structure:
+    users_dict = {
         'uid1': {
             'name': 'name1',
             'password': 'pwd1'
@@ -15,6 +16,12 @@ users_dict = {
             'password': 'pwd2'
         }
     }
+"""
+users_dict = {}
+
+@app.route('/')
+def index():
+    return "Hello World!"
 
 @app.route('/api/users')
 def get_users():
@@ -25,6 +32,16 @@ def get_users():
         'items': users_list
     }
     response = make_response(json.dumps(users))
+    response.headers["Content-Type"] = "application/json"
+    return response
+
+@app.route('/api/users', methods=['DELETE'])
+def clear_users():
+    users_dict.clear()
+    result = {
+        'success': True
+    }
+    response = make_response(json.dumps(result))
     response.headers["Content-Type"] = "application/json"
     return response
 
@@ -105,8 +122,3 @@ def delete_user(uid):
     response = make_response(json.dumps(result), status_code)
     response.headers["Content-Type"] = "application/json"
     return response
-
-if __name__ == '__main__':
-    # app.run(debug=True)
-    server_process = multiprocessing.Process(target=app.run)
-    server_process.start()
